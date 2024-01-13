@@ -2,12 +2,14 @@ import { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../components/Provider/AuthProvider";
 import toast from "react-hot-toast";
+import useAxios from "../hooks/useAxios";
 
 const Login = () => {
   const { login } = useContext(AuthContext);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const axios = useAxios();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     const form = e.target;
     const email = form.email.value;
@@ -15,16 +17,26 @@ const Login = () => {
 
     console.log(email, password);
 
-    login(email, password)
-      .then((result) => {
-        const user = result?.user;
-        toast.success("Login Successfully");
-        console.log(user);
-        navigate("/");
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    try {
+      const user = await login(email, password);
+      console.log(user.user.email);
+      axios.post("/auth/access-token", {email: user.user.email})
+      toast.success("Login Successfully");
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+    }
+
+    // login(email, password)
+    //   .then((result) => {
+    //     const user = result?.user;
+    //     toast.success("Login Successfully");
+    //     console.log(user);
+    //     navigate("/");
+    //   })
+    //   .catch((error) => {
+    //     console.log(error);
+    //   });
   };
   return (
     <div>
